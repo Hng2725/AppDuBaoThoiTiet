@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="searchButton" type="id" />
+    <item name="cityNameTextView" type="id" />
+    <item name="weatherIconImageView" type="id" />
+    <item name="tempTextView" type="id" />
+    <item name="conditionTextView" type="id" />
+    <item name="detailsLayout" type="id" />
+    <item name="humidityTextView" type="id" />
+    <item name="pressureTextView" type="id" />
+    <item name="cityEditText" type="id" />
+</resources>
