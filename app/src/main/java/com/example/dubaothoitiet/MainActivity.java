@@ -2,10 +2,14 @@ package com.example.dubaothoitiet;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
 
     // Khai báo các biến
     private EditText cityEditText;
-    private Button searchButton;
+    private Button searchButton, viewMoreButton;
     private TextView cityNameTextView, tempTextView, conditionTextView, humidityTextView, pressureTextView;
     private ImageView weatherIconImageView;
     private LinearLayout detailsLayout;
     private LinearLayout rootLayout;
+    private String currentCityName;
+    private double currentLat, currentLon;
 
     private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904";
 
@@ -45,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         cityEditText = findViewById(R.id.cityEditText);
         searchButton = findViewById(R.id.searchButton);
+        viewMoreButton = findViewById(R.id.viewMoreButton);
         cityNameTextView = findViewById(R.id.cityNameTextView);
         tempTextView = findViewById(R.id.tempTextView);
         conditionTextView = findViewById(R.id.conditionTextView);
@@ -62,6 +69,35 @@ public class MainActivity extends AppCompatActivity {
                 new FetchWeatherTask().execute(cityName);
             }
         });
+
+        viewMoreButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ForecastActivity.class);
+            intent.putExtra("CITY_NAME", currentCityName);
+            intent.putExtra("LAT", currentLat);
+            intent.putExtra("LON", currentLon);
+            startActivity(intent);
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menu_about) {
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.menu_weather) {
+            // Already on the weather screen
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 
@@ -128,15 +164,19 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray weatherArray = weatherJson.getJSONArray("weather");
                 JSONObject weatherData = weatherArray.getJSONObject(0);
                 JSONObject mainData = weatherJson.getJSONObject("main");
+                JSONObject coordData = weatherJson.getJSONObject("coord");
 
-                String cityName = weatherJson.getString("name");
+                currentCityName = weatherJson.getString("name");
+                currentLat = coordData.getDouble("lat");
+                currentLon = coordData.getDouble("lon");
+
                 double temp = mainData.getDouble("temp");
                 String description = weatherData.getString("description");
                 int humidity = mainData.getInt("humidity");
                 int pressure = mainData.getInt("pressure");
                 String iconCode = weatherData.getString("icon");
 
-                cityNameTextView.setText(cityName);
+                cityNameTextView.setText(currentCityName);
                 tempTextView.setText(String.format(Locale.getDefault(), "%.0f°C", temp));
                 conditionTextView.setText(description.substring(0, 1).toUpperCase() + description.substring(1));
                 humidityTextView.setText(String.format(Locale.getDefault(), "%d%%", humidity));
@@ -147,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 tempTextView.setVisibility(View.VISIBLE);
                 conditionTextView.setVisibility(View.VISIBLE);
                 detailsLayout.setVisibility(View.VISIBLE);
+                viewMoreButton.setVisibility(View.VISIBLE);
 
                 String iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@4x.png";
                 new DownloadImageTask().execute(iconUrl);

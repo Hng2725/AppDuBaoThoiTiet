@@ -150,4 +150,12 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/viewMoreButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xem thêm"
+        android:layout_marginTop="24dp"
+        android:visibility="gone" />
+
 </LinearLayout>

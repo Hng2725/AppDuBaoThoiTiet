@@ -21,6 +21,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AboutActivity"
+            android:label="Giới thiệu ứng dụng" />
+        <activity
+            android:name=".ForecastActivity"
+            android:label="Dự báo 7 ngày" />
     </application>
 
 </manifest>
