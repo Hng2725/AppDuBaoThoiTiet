@@ -32,7 +32,7 @@ public class ForecastActivity extends AppCompatActivity {
     private ForecastAdapter forecastAdapter;
     private List<Forecast> forecastList;
 
-    private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904"; // THAY API KEY CỦA BẠN VÀO ĐÂY
+    private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

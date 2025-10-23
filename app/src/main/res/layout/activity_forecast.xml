@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:background="@drawable/bg_forecast"
     tools:context=".ForecastActivity">
 
     <TextView
@@ -13,13 +14,14 @@
         android:layout_height="wrap_content"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="@android:color/white"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        tools:text="Dự báo 7 ngày cho Hanoi" />
+        tools:text="Dự báo 5 ngày tới" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/forecastRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="466dp" />
 
 </LinearLayout>

@@ -26,7 +26,7 @@
             android:label="Giới thiệu ứng dụng" />
         <activity
             android:name=".ForecastActivity"
-            android:label="Dự báo 7 ngày" />
+            android:label="Dự báo 5 ngày tới" />
     </application>
 
 </manifest>

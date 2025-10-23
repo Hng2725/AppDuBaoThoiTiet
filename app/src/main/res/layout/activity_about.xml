@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center_horizontal"
     tools:context=".AboutActivity">
 
     <TextView
+        android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Giới thiệu ứng dụng"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="24dp"/>
 
     <TextView
         android:id="@+id/aboutTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Đây là ứng dụng dự báo thời tiết đơn giản."
-        android:textSize="18sp"/>
+        android:layout_below="@id/titleTextView"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:lineSpacingExtra="4dp"
+        android:text="Đây là một ứng dụng dự báo thời tiết đơn giản, được xây dựng để cung cấp thông tin thời tiết nhanh chóng và chính xác.
 
-</LinearLayout>
+Chức năng chính:
+- Xem thời tiết hiện tại của bất kỳ thành phố nào.
+- Dự báo thời tiết cho 5 ngày tới.
+
+Phiên bản: 1.0"
+        android:textSize="18sp" />
+
+</RelativeLayout>
