@@ -1,5 +1,6 @@
 package com.example.dubaothoitiet;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -7,6 +8,15 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +41,9 @@ public class ForecastActivity extends AppCompatActivity {
     private RecyclerView forecastRecyclerView;
     private ForecastAdapter forecastAdapter;
     private List<Forecast> forecastList;
+    private BarChart temperatureChart;
 
+    // --- VUI LÒNG THAY API KEY CỦA BẠN VÀO ĐÂY ---
     private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904";
 
     @Override
@@ -41,6 +53,7 @@ public class ForecastActivity extends AppCompatActivity {
 
         forecastTitleTextView = findViewById(R.id.forecastTitleTextView);
         forecastRecyclerView = findViewById(R.id.forecastRecyclerView);
+        temperatureChart = findViewById(R.id.temperatureChart);
         forecastRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         String cityName = getIntent().getStringExtra("CITY_NAME");
@@ -71,7 +84,6 @@ public class ForecastActivity extends AppCompatActivity {
             String forecastJsonStr = null;
 
             try {
-                // Sử dụng API "5 Day / 3 Hour Forecast"
                 final String FORECAST_BASE_URL = "https://api.openweathermap.org/data/2.5/forecast?";
                 String urlString = FORECAST_BASE_URL + "lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + "&units=metric" + "&lang=vi";
                 URL url = new URL(urlString);
@@ -124,34 +136,42 @@ public class ForecastActivity extends AppCompatActivity {
                 JSONObject forecastJson = new JSONObject(result);
                 JSONArray listArray = forecastJson.getJSONArray("list");
 
+                // --- Xử lý dữ liệu cho dự báo 5 ngày ---
                 Set<String> processedDays = new HashSet<>();
-
                 for (int i = 0; i < listArray.length(); i++) {
                     JSONObject forecastItem = listArray.getJSONObject(i);
                     long dt = forecastItem.getLong("dt");
-
-                    // Chỉ lấy dự báo cho khoảng 12h trưa mỗi ngày
                     String dt_txt = forecastItem.getString("dt_txt");
+
                     if (dt_txt.contains("12:00:00")) {
                         String dayName = getDayOfWeek(dt);
-
-                        // Đảm bảo không thêm trùng ngày
                         if (processedDays.add(dayName) && forecastList.size() < 5) {
                             JSONObject main = forecastItem.getJSONObject("main");
                             double temp = main.getDouble("temp");
-                            JSONArray weatherArray = forecastItem.getJSONArray("weather");
-                            JSONObject weather = weatherArray.getJSONObject(0);
+                            JSONObject weather = forecastItem.getJSONArray("weather").getJSONObject(0);
                             String icon = weather.getString("icon");
-
-                            // API này không có min/max cho mỗi 3h, ta có thể hiển thị nhiệt độ tại thời điểm đó
                             String tempString = String.format(Locale.getDefault(), "%.0f°C", temp);
-
                             forecastList.add(new Forecast(dayName, icon, tempString));
                         }
                     }
                 }
-
                 forecastAdapter.notifyDataSetChanged();
+
+                // --- Xử lý dữ liệu cho biểu đồ nhiệt độ hôm nay ---
+                List<BarEntry> chartEntries = new ArrayList<>();
+                List<String> chartLabels = new ArrayList<>();
+                int dataPoints = Math.min(8, listArray.length()); // 8*3h = 24h
+
+                for (int i = 0; i < dataPoints; i++) {
+                    JSONObject forecastItem = listArray.getJSONObject(i);
+                    JSONObject main = forecastItem.getJSONObject("main");
+                    double temp = main.getDouble("temp");
+                    String time = forecastItem.getString("dt_txt").substring(11, 16); // "12:00"
+
+                    chartEntries.add(new BarEntry(i, (float) temp));
+                    chartLabels.add(time);
+                }
+                setupTemperatureChart(chartEntries, chartLabels);
 
             } catch (JSONException e) {
                 Toast.makeText(ForecastActivity.this, "Lỗi phân tích dữ liệu dự báo", Toast.LENGTH_SHORT).show();
@@ -162,9 +182,59 @@ public class ForecastActivity extends AppCompatActivity {
             Date date = new Date(time * 1000L);
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE", new Locale("vi", "VN"));
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
-            // Viết hoa chữ cái đầu
             String day = sdf.format(date);
             return day.substring(0, 1).toUpperCase() + day.substring(1);
         }
+    }
+
+    private void setupTemperatureChart(List<BarEntry> entries, final List<String> labels) {
+        BarDataSet dataSet = new BarDataSet(entries, "Nhiệt độ");
+        dataSet.setColor(Color.WHITE);
+        dataSet.setValueTextColor(Color.DKGRAY);
+        dataSet.setValueTextSize(12f);
+
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.6f);
+
+        temperatureChart.setData(barData);
+        temperatureChart.setFitBars(true);
+        temperatureChart.getDescription().setEnabled(false);
+        temperatureChart.getLegend().setEnabled(false);
+        temperatureChart.setDrawValueAboveBar(true);
+        temperatureChart.setTouchEnabled(false);
+        temperatureChart.setDrawGridBackground(false);
+
+        // Trục X
+        XAxis xAxis = temperatureChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(Color.WHITE);
+        xAxis.setTextSize(12f);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, com.github.mikephil.charting.components.AxisBase axis) {
+                int index = (int) value;
+                if (index >= 0 && index < labels.size()) {
+                    return labels.get(index);
+                }
+                return "";
+            }
+        });
+
+        // Trục Y
+        YAxis leftAxis = temperatureChart.getAxisLeft();
+        leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setGridColor(Color.parseColor("#55FFFFFF")); // Lưới ngang màu trắng mờ
+        leftAxis.setAxisLineColor(Color.WHITE);
+        leftAxis.setLabelCount(5, true);
+        leftAxis.setAxisMinimum(0f);
+
+        temperatureChart.getAxisRight().setEnabled(false); // Ẩn trục Y bên phải
+
+        temperatureChart.animateY(1500);
+
+        temperatureChart.invalidate();
     }
 }

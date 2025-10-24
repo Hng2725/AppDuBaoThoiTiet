@@ -32,7 +32,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Khai báo các biến
     private EditText cityEditText;
     private Button searchButton, viewMoreButton;
     private TextView cityNameTextView, tempTextView, conditionTextView, humidityTextView, pressureTextView;
