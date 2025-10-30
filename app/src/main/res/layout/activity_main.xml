@@ -1,161 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center_horizontal"
-    android:background="#F0F4F8"
+    android:background="#87CEEB"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Dự Báo Thời Tiết"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:textColor="#1E293B"
-        android:layout_marginBottom="32dp"/>
-
-    <com.google.android.material.textfield.TextInputLayout
+    <!-- Search Section (Hidden by default) -->
+    <LinearLayout
+        android:id="@+id/searchSection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_marginBottom="16dp">
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#E0FFFFFF"
+        android:elevation="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp"
+        android:visibility="gone">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/cityEditText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nhập tên thành phố (ví dụ: Hanoi)"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="8dp">
 
-    <Button
-        android:id="@+id/searchButton"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cityEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập tên thành phố (ví dụ: Hanoi)"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#3B82F6"
+            android:padding="12dp"
+            android:text="Xem Thời Tiết"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Main Weather Display -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="#3B82F6"
-        android:padding="12dp"
-        android:text="Xem Thời Tiết"
-        android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="24dp"
+        android:fitsSystemWindows="true">
 
-    <TextView
-        android:id="@+id/cityNameTextView"
+        <!-- City Name -->
+        <TextView
+            android:id="@+id/cityNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Cầu Giấy"
+            android:textSize="24sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"/>
+
+        <!-- Temperature Display -->
+        <TextView
+            android:id="@+id/tempTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="22°"
+            android:textSize="120sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="80dp"
+            android:visibility="gone"/>
+
+        <!-- Weather Condition & Temperature Range -->
+        <LinearLayout
+            android:id="@+id/conditionLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/conditionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Nhiều mây"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"/>
+
+            <TextView
+                android:id="@+id/tempRangeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="  26° 22°"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <!-- AQI Display -->
+        <LinearLayout
+            android:id="@+id/aqiLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_dialog_info"
+                android:tint="#FFFFFF"/>
+
+            <TextView
+                android:id="@+id/aqiTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="AQI 102"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <!-- 5-Day Forecast Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/forecastCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#80FFFFFF"
+            app:cardElevation="0dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_today"
+                        android:tint="#FFFFFF"/>
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Dự báo 5 ngày"
+                        android:textSize="16sp"
+                        android:textColor="#FFFFFF"
+                        android:layout_marginStart="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thêm chi tiết ▸"
+                        android:textSize="14sp"
+                        android:textColor="#FFFFFF"/>
+                </LinearLayout>
+
+                <!-- Forecast List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/forecastRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <!-- View More Button -->
+                <Button
+                    android:id="@+id/viewMoreButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dự báo 5 ngày"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#6090C0"
+                    android:layout_marginTop="12dp"
+                    android:textSize="16sp"
+                    android:padding="12dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <!-- Top Right Menu Icons -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Hanoi"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#1E293B"
-        android:visibility="gone"/>
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:paddingBottom="8dp"
+        android:elevation="10dp">
 
+        <ImageView
+            android:id="@+id/addButton"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_input_add"
+            android:tint="#FFFFFF"
+            android:layout_marginEnd="12dp"/>
+
+        <ImageView
+            android:id="@+id/menuButton"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_more"
+            android:tint="#FFFFFF"/>
+    </LinearLayout>
+
+    <!-- Hidden elements for compatibility -->
     <ImageView
         android:id="@+id/weatherIconImageView"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="8dp"
-        tools:src="@android:drawable/ic_menu_gallery"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tempTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="25°C"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:textColor="#1E293B"
-        android:layout_marginTop="8dp"
-        android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/conditionTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Mây rải rác"
-        android:textSize="20sp"
-        android:textColor="#475569"
-        android:textAllCaps="true"
-        android:layout_marginTop="4dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/detailsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone">
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/humidityTextView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Độ ẩm"
-                android:textSize="16sp"
-                android:textColor="#475569"/>
-
-            <TextView
-                android:id="@+id/humidityTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="80%"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#1E293B"/>
-        </LinearLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="#CBD5E1"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"/>
-
-        <LinearLayout
+            android:layout_height="0dp"/>
+        <TextView
+            android:id="@+id/pressureTextView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Áp suất"
-                android:textSize="16sp"
-                android:textColor="#475569"/>
-
-            <TextView
-                android:id="@+id/pressureTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="1012 hPa"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#1E293B"/>
-        </LinearLayout>
-
+            android:layout_height="0dp"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/viewMoreButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Xem thêm"
-        android:layout_marginTop="24dp"
-        android:visibility="gone" />
-
-</LinearLayout>
+</RelativeLayout>

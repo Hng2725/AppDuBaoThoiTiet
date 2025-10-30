@@ -29,7 +29,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     public void onBindViewHolder(@NonNull ForecastViewHolder holder, int position) {
         Forecast forecast = forecastList.get(position);
         holder.dayTextView.setText(forecast.getDay());
-        holder.tempRangeTextView.setText(forecast.getTempRange());
+        holder.tempMinTextView.setText(forecast.getTempMin());
+        holder.tempRangeTextView.setText(forecast.getTempMax());
         Picasso.get().load("https://openweathermap.org/img/w/" + forecast.getIcon() + ".png").into(holder.weatherIconImageView);
     }
 
@@ -41,12 +42,14 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     static class ForecastViewHolder extends RecyclerView.ViewHolder {
         TextView dayTextView;
         ImageView weatherIconImageView;
+        TextView tempMinTextView;
         TextView tempRangeTextView;
 
         public ForecastViewHolder(@NonNull View itemView) {
             super(itemView);
             dayTextView = itemView.findViewById(R.id.dayTextView);
             weatherIconImageView = itemView.findViewById(R.id.weatherIconImageView);
+            tempMinTextView = itemView.findViewById(R.id.tempMinTextView);
             tempRangeTextView = itemView.findViewById(R.id.tempRangeTextView);
         }
     }
