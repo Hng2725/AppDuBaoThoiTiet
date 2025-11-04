@@ -28,6 +28,9 @@
         <activity
             android:name=".ForecastActivity"
             android:label="Dự báo 5 ngày tới" />
+        <activity
+            android:name=".WeatherDetailActivity"
+            android:label="Chi tiết thời tiết" />
     </application>
 
 </manifest>

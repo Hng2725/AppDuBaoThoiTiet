@@ -127,6 +127,20 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Detail button click handler - Navigate to weather details
+        ImageView detailButton = findViewById(R.id.detailButton);
+        detailButton.setOnClickListener(v -> {
+            if (currentCityName != null && currentLat != 0 && currentLon != 0) {
+                Intent intent = new Intent(MainActivity.this, WeatherDetailActivity.class);
+                intent.putExtra("CITY_NAME", currentCityName);
+                intent.putExtra("LAT", currentLat);
+                intent.putExtra("LON", currentLon);
+                startActivity(intent);
+            } else {
+                Toast.makeText(MainActivity.this, "Vui lòng tìm kiếm thành phố trước", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Add button click handler - Show dialog to input city name
         ImageView addButton = findViewById(R.id.addButton);
         addButton.setOnClickListener(v -> {

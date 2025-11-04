@@ -220,6 +220,14 @@
         android:elevation="10dp">
 
         <ImageView
+            android:id="@+id/detailButton"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:tint="#FFFFFF"
+            android:layout_marginEnd="12dp"/>
+
+        <ImageView
             android:id="@+id/addButton"
             android:layout_width="28dp"
             android:layout_height="28dp"
