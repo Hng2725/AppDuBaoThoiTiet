@@ -1,10 +1,12 @@
 package com.example.dubaothoitiet;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -125,18 +127,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Add button click handler - Force use real Hanoi coordinates
+        // Add button click handler - Show dialog to input city name
         ImageView addButton = findViewById(R.id.addButton);
         addButton.setOnClickListener(v -> {
-            Toast.makeText(this, "🎯 Sử dụng tọa độ Hà Nội thực tế", Toast.LENGTH_SHORT).show();
-            testLocationWithCoordinates(20.977111, 105.781444);
+            showAddCityDialog();
         });
 
-        // Menu button click handler
+        // Menu button click handler - Manual location input for testing
         ImageView menuButton = findViewById(R.id.menuButton);
         menuButton.setOnClickListener(v -> {
-            // Test with your exact coordinates
-            testLocationWithCoordinates(20.977111, 105.781444);
+            showLocationTestDialog();
         });
 
         // Check and request location permission
@@ -193,8 +193,96 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void testLocationWithCoordinates(double lat, double lon) {
-        Toast.makeText(this, "Testing với tọa độ Hà Nội: " + lat + ", " + lon, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, String.format("Testing với tọa độ: %.6f, %.6f", lat, lon), Toast.LENGTH_SHORT).show();
         new FetchWeatherByCoordinatesTask().execute(lat, lon);
+    }
+
+    private void showAddCityDialog() {
+        // Create an EditText for the dialog
+        final EditText input = new EditText(this);
+        input.setHint("Ví dụ: Hanoi, Tokyo, Paris");
+        input.setPadding(50, 30, 50, 30);
+        
+        // Create the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Thêm thành phố");
+        builder.setMessage("Nhập tên thành phố bạn muốn xem thời tiết:");
+        builder.setView(input);
+        
+        // Set up the buttons
+        builder.setPositiveButton("Tìm kiếm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String cityName = input.getText().toString().trim();
+                if (cityName.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Vui lòng nhập tên thành phố", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Search for the city weather
+                    new FetchWeatherTask().execute(cityName);
+                }
+            }
+        });
+        
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        
+        builder.show();
+    }
+
+    private void showLocationTestDialog() {
+        // Create a custom layout for lat/lon input
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(50, 30, 50, 30);
+        
+        final EditText latInput = new EditText(this);
+        latInput.setHint("Latitude (VD: 21.028511)");
+        latInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);
+        
+        final EditText lonInput = new EditText(this);
+        lonInput.setHint("Longitude (VD: 105.804817)");
+        lonInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL | android.text.InputType.TYPE_NUMBER_FLAG_SIGNED);
+        
+        layout.addView(latInput);
+        layout.addView(lonInput);
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Test vị trí GPS");
+        builder.setMessage("Nhập tọa độ để test:\n\nMột số vị trí phổ biến:\n• Hà Nội: 21.028511, 105.804817\n• TP.HCM: 10.762622, 106.660172\n• Đà Nẵng: 16.047079, 108.206230");
+        builder.setView(layout);
+        
+        builder.setPositiveButton("Test", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String latStr = latInput.getText().toString().trim();
+                String lonStr = lonInput.getText().toString().trim();
+                
+                if (latStr.isEmpty() || lonStr.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Vui lòng nhập đầy đủ tọa độ", Toast.LENGTH_SHORT).show();
+                } else {
+                    try {
+                        double lat = Double.parseDouble(latStr);
+                        double lon = Double.parseDouble(lonStr);
+                        testLocationWithCoordinates(lat, lon);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(MainActivity.this, "Tọa độ không hợp lệ", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+        
+        builder.setNegativeButton("Hủy", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        
+        builder.show();
     }
 
     private boolean isEmulator() {
@@ -211,42 +299,23 @@ public class MainActivity extends AppCompatActivity {
     private void getCurrentLocation() {
         if (!isLocationPermissionGranted) return;
 
-
-
         try {
             LocationListener locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     double latitude = location.getLatitude();
                     double longitude = location.getLongitude();
-
-                    // Debug: Show coordinates and location info
-                    String provider = location.getProvider();
                     float accuracy = location.getAccuracy();
-                    long time = location.getTime();
-                    long age = System.currentTimeMillis() - time;
 
-                    Toast.makeText(MainActivity.this,
-                            String.format("GPS: %.6f, %.6f\nProvider: %s\nAccuracy: %.1fm\nAge: %ds",
-                                    latitude, longitude, provider, accuracy, age/1000),
-                            Toast.LENGTH_LONG).show();
-
-                    // Check if coordinates are suspicious (Mountain View area)
-                    if (latitude >= 37.3 && latitude <= 37.5 && longitude >= -122.2 && longitude <= -122.0) {
+                    // Only use location if accuracy is reasonable (less than 500m)
+                    if (accuracy > 500) {
                         Toast.makeText(MainActivity.this,
-                                "⚠️ GPS trả về tọa độ Mountain View! Có thể đang dùng emulator hoặc mock location",
-                                Toast.LENGTH_LONG).show();
-
-                        // Use your real coordinates instead
-                        latitude = 21.028511;
-                        longitude = 105.804817;
-
-                        Toast.makeText(MainActivity.this,
-                                "✅ Đã chuyển sang tọa độ Hà Nội thực tế",
+                                String.format("Độ chính xác thấp (%.0fm), đang chờ GPS tốt hơn...", accuracy),
                                 Toast.LENGTH_SHORT).show();
+                        return;
                     }
 
-                    // Stop location updates after getting first location
+                    // Stop location updates after getting first accurate location
                     locationManager.removeUpdates(this);
 
                     // Call weather API with coordinates
@@ -263,45 +332,61 @@ public class MainActivity extends AppCompatActivity {
                 public void onProviderDisabled(String provider) {}
             };
 
-            // Try GPS first, then network
+            // Request location updates from both providers for better accuracy
+            boolean requestedUpdate = false;
+            
+            // Prefer GPS for better accuracy
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-            } else {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
+                requestedUpdate = true;
+            }
+            
+            // Also use network as fallback
+            if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, locationListener);
+                requestedUpdate = true;
+            }
+            
+            if (!requestedUpdate) {
                 Toast.makeText(this, "Vui lòng bật GPS hoặc kết nối mạng", Toast.LENGTH_SHORT).show();
                 searchSection.setVisibility(View.VISIBLE);
+                return;
             }
 
-            // Get last known location as backup
-            Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (lastKnownLocation == null) {
-                lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            }
-
-            if (lastKnownLocation != null) {
-                // Check if location is recent (within 10 minutes)
-                long locationAge = System.currentTimeMillis() - lastKnownLocation.getTime();
-                if (locationAge < 10 * 60 * 1000) { // 10 minutes
-                    double lat = lastKnownLocation.getLatitude();
-                    double lon = lastKnownLocation.getLongitude();
-
-                    Toast.makeText(this,
-                            String.format("Last known: %.6f, %.6f (Age: %ds)",
-                                    lat, lon, locationAge/1000),
-                            Toast.LENGTH_SHORT).show();
-
-                    // Check if last known location is also Mountain View
-                    if (lat >= 37.3 && lat <= 37.5 && lon >= -122.2 && lon <= -122.0) {
-                        Toast.makeText(this,
-                                "⚠️ Last known location cũng là Mountain View! Sử dụng tọa độ Hà Nội",
-                                Toast.LENGTH_LONG).show();
-                        lat = 20.977111;
-                        lon = 105.781444;
-                    }
-
-                    new FetchWeatherByCoordinatesTask().execute(lat, lon);
+            // Get last known location as immediate fallback
+            Location lastKnownGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location lastKnownNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            
+            // Choose the best available location
+            Location bestLocation = null;
+            if (lastKnownGPS != null && lastKnownNetwork != null) {
+                // Prefer GPS if it's more recent or more accurate
+                long gpsAge = System.currentTimeMillis() - lastKnownGPS.getTime();
+                long networkAge = System.currentTimeMillis() - lastKnownNetwork.getTime();
+                
+                if (gpsAge < networkAge && gpsAge < 5 * 60 * 1000) {
+                    bestLocation = lastKnownGPS;
+                } else if (networkAge < 5 * 60 * 1000) {
+                    bestLocation = lastKnownNetwork;
                 }
+            } else if (lastKnownGPS != null) {
+                long gpsAge = System.currentTimeMillis() - lastKnownGPS.getTime();
+                if (gpsAge < 5 * 60 * 1000) {
+                    bestLocation = lastKnownGPS;
+                }
+            } else if (lastKnownNetwork != null) {
+                long networkAge = System.currentTimeMillis() - lastKnownNetwork.getTime();
+                if (networkAge < 5 * 60 * 1000) {
+                    bestLocation = lastKnownNetwork;
+                }
+            }
+
+            if (bestLocation != null) {
+                double lat = bestLocation.getLatitude();
+                double lon = bestLocation.getLongitude();
+                new FetchWeatherByCoordinatesTask().execute(lat, lon);
+            } else {
+                Toast.makeText(this, "Đang lấy vị trí hiện tại...", Toast.LENGTH_SHORT).show();
             }
 
         } catch (SecurityException e) {
@@ -431,41 +516,48 @@ public class MainActivity extends AppCompatActivity {
             double lon = params[1];
 
             try {
-                // Try Vietnamese locale first
+                // Try to get location name using Geocoder
                 Geocoder geocoder = new Geocoder(MainActivity.this, new Locale("vi", "VN"));
-                List<Address> addresses = geocoder.getFromLocation(lat, lon, 3);
+                List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
                 if (addresses != null && !addresses.isEmpty()) {
-                    for (Address address : addresses) {
-                        String locationName = "";
-
-                        // Priority order: Locality -> SubAdminArea -> AdminArea -> CountryName
-                        if (address.getLocality() != null && !address.getLocality().isEmpty()) {
-                            locationName = address.getLocality();
-                        } else if (address.getSubAdminArea() != null && !address.getSubAdminArea().isEmpty()) {
-                            locationName = address.getSubAdminArea();
-                        } else if (address.getAdminArea() != null && !address.getAdminArea().isEmpty()) {
-                            locationName = address.getAdminArea();
-                        } else if (address.getCountryName() != null && !address.getCountryName().isEmpty()) {
-                            locationName = address.getCountryName();
+                    Address address = addresses.get(0);
+                    
+                    // Get all available location components
+                    String subLocality = address.getSubLocality();  // Quận/Huyện
+                    String locality = address.getLocality();        // Thành phố
+                    String subAdminArea = address.getSubAdminArea(); // Tỉnh/Thành phố cấp cao hơn
+                    String adminArea = address.getAdminArea();      // Vùng
+                    String countryName = address.getCountryName();  // Quốc gia
+                    
+                    // Build location name intelligently
+                    String locationName = "";
+                    
+                    // For cities: show district + city (e.g., "Cầu Giấy, Hà Nội")
+                    if (subLocality != null && !subLocality.isEmpty()) {
+                        locationName = subLocality;
+                        if (locality != null && !locality.isEmpty() && !locality.equals(subLocality)) {
+                            locationName += ", " + locality;
                         }
-
-                        // Filter out unwanted results and prioritize Vietnamese locations
-                        if (!locationName.isEmpty() &&
-                                !locationName.toLowerCase().contains("mountain view") &&
-                                !locationName.toLowerCase().contains("california") &&
-                                !locationName.toLowerCase().contains("united states")) {
-
-                            // Special handling for Hanoi area
-                            if (lat >= 20.9 && lat <= 21.1 && lon >= 105.7 && lon <= 105.9) {
-                                if (locationName.toLowerCase().contains("hanoi") ||
-                                        locationName.toLowerCase().contains("hà nội") ||
-                                        locationName.toLowerCase().contains("ha noi")) {
-                                    return "Hà Nội";
-                                }
-                            }
-
-                            return locationName;
-                        }
+                    }
+                    // If no district, show city
+                    else if (locality != null && !locality.isEmpty()) {
+                        locationName = locality;
+                    }
+                    // If no city, show province/state
+                    else if (subAdminArea != null && !subAdminArea.isEmpty()) {
+                        locationName = subAdminArea;
+                    }
+                    // If no province, show admin area
+                    else if (adminArea != null && !adminArea.isEmpty()) {
+                        locationName = adminArea;
+                    }
+                    // Last resort: country name
+                    else if (countryName != null && !countryName.isEmpty()) {
+                        locationName = countryName;
+                    }
+                    
+                    if (!locationName.isEmpty()) {
+                        return locationName;
                     }
                 }
 
@@ -506,15 +598,6 @@ public class MainActivity extends AppCompatActivity {
                     String name = location.optString("name", "");
                     String state = location.optString("state", "");
                     String country = location.optString("country", "");
-
-                    // Special handling for Hanoi coordinates
-                    if (lat >= 20.9 && lat <= 21.1 && lon >= 105.7 && lon <= 105.9) {
-                        if (name.toLowerCase().contains("hanoi") || name.toLowerCase().contains("hà nội")) {
-                            return "Hà Nội";
-                        }
-                        // If in Hanoi area but name doesn't contain Hanoi, force return Hanoi
-                        return "Hà Nội";
-                    }
 
                     if (!name.isEmpty()) {
                         return name;

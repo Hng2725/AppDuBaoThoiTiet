@@ -43,7 +43,6 @@ public class ForecastActivity extends AppCompatActivity {
     private List<Forecast> forecastList;
     private BarChart temperatureChart;
 
-    // --- VUI LÒNG THAY API KEY CỦA BẠN VÀO ĐÂY ---
     private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904";
 
     @Override
