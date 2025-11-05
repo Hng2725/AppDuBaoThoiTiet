@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Dự báo thời tiết</string>
+    <string name="search_button">Tìm kiếm</string>
+    <string name="city_name">Tên thành phố</string>
+    <string name="weather_icon">Biểu tượng thời tiết</string>
+    <string name="temp">Nhiệt độ</string>
+    <string name="condition">Điều kiện</string>
+    <string name="details_layout">Chi tiết</string>
+    <string name="humidity">Độ ẩm</string>
+    <string name="pressure">Áp suất</string>
+    <string name="city_edit_text">Tên thành phố</string>
+</resources>

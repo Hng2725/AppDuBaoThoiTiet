@@ -4,7 +4,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -63,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     private double currentTempMin, currentTempMax;
 
 
-    // Location
     private LocationManager locationManager;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private boolean isLocationPermissionGranted = false;
@@ -74,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Hide action bar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -100,14 +103,12 @@ public class MainActivity extends AppCompatActivity {
         forecastRecyclerView = findViewById(R.id.forecastRecyclerView);
         rootLayout = findViewById(R.id.rootLayout);
 
-        // Initialize forecast lists
         forecastList = new ArrayList<>();
         forecastAdapter = new ForecastAdapter(forecastList);
         forecastRecyclerView.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
         forecastRecyclerView.setAdapter(forecastAdapter);
 
 
-        // Initialize location manager
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         searchButton.setOnClickListener(v -> {
@@ -127,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Detail button click handler - Navigate to weather details
         ImageView detailButton = findViewById(R.id.detailButton);
         detailButton.setOnClickListener(v -> {
             if (currentCityName != null && currentLat != 0 && currentLon != 0) {
@@ -141,22 +141,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Add button click handler - Show dialog to input city name
         ImageView addButton = findViewById(R.id.addButton);
         addButton.setOnClickListener(v -> {
             showAddCityDialog();
         });
 
-        // Menu button click handler - Manual location input for testing
         ImageView menuButton = findViewById(R.id.menuButton);
         menuButton.setOnClickListener(v -> {
-            showLocationTestDialog();
+            Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+            startActivity(intent);
         });
 
-        // Check and request location permission
         checkLocationPermission();
 
-        // Try to get current location weather on app start
         if (isLocationPermissionGranted) {
             refreshByCurrentLocation();
         }
@@ -165,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Only refresh location weather if no weather data is currently displayed
         if (isLocationPermissionGranted && cityNameTextView.getVisibility() == View.GONE) {
             refreshByCurrentLocation();
         }
@@ -191,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 refreshByCurrentLocation();
             } else {
                 isLocationPermissionGranted = false;
-                // Show search section as fallback
                 searchSection.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Cần quyền truy cập vị trí để hiển thị thời tiết hiện tại", Toast.LENGTH_LONG).show();
             }
@@ -212,18 +207,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAddCityDialog() {
-        // Create an EditText for the dialog
         final EditText input = new EditText(this);
         input.setHint("Ví dụ: Hanoi, Tokyo, Paris");
         input.setPadding(50, 30, 50, 30);
         
-        // Create the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Thêm thành phố");
         builder.setMessage("Nhập tên thành phố bạn muốn xem thời tiết:");
         builder.setView(input);
         
-        // Set up the buttons
         builder.setPositiveButton("Tìm kiếm", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -231,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
                 if (cityName.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Vui lòng nhập tên thành phố", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Search for the city weather
                     new FetchWeatherTask().execute(cityName);
                 }
             }
@@ -248,7 +239,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showLocationTestDialog() {
-        // Create a custom layout for lat/lon input
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(50, 30, 50, 30);
@@ -321,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
                     double longitude = location.getLongitude();
                     float accuracy = location.getAccuracy();
 
-                    // Only use location if accuracy is reasonable (less than 500m)
                     if (accuracy > 500) {
                         Toast.makeText(MainActivity.this,
                                 String.format("Độ chính xác thấp (%.0fm), đang chờ GPS tốt hơn...", accuracy),
@@ -329,10 +318,8 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // Stop location updates after getting first accurate location
                     locationManager.removeUpdates(this);
 
-                    // Call weather API with coordinates
                     new FetchWeatherByCoordinatesTask().execute(latitude, longitude);
                 }
 
@@ -346,16 +333,13 @@ public class MainActivity extends AppCompatActivity {
                 public void onProviderDisabled(String provider) {}
             };
 
-            // Request location updates from both providers for better accuracy
             boolean requestedUpdate = false;
             
-            // Prefer GPS for better accuracy
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
                 requestedUpdate = true;
             }
             
-            // Also use network as fallback
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, locationListener);
                 requestedUpdate = true;
@@ -367,14 +351,11 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            // Get last known location as immediate fallback
             Location lastKnownGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             Location lastKnownNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             
-            // Choose the best available location
             Location bestLocation = null;
             if (lastKnownGPS != null && lastKnownNetwork != null) {
-                // Prefer GPS if it's more recent or more accurate
                 long gpsAge = System.currentTimeMillis() - lastKnownGPS.getTime();
                 long networkAge = System.currentTimeMillis() - lastKnownNetwork.getTime();
                 
@@ -420,7 +401,6 @@ public class MainActivity extends AppCompatActivity {
             String weatherJsonStr = null;
 
             try {
-                // Use standard weather API with coordinates
                 final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather?";
                 String urlString = BASE_URL + "lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + "&units=metric&lang=vi";
                 URL url = new URL(urlString);
@@ -465,7 +445,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if (result == null) {
-                // Fallback to regular weather API if OneCall fails
                 Toast.makeText(MainActivity.this, "Không thể lấy dữ liệu thời tiết chi tiết", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -483,37 +462,29 @@ public class MainActivity extends AppCompatActivity {
                 double tempMin = mainData.getDouble("temp_min");
                 double tempMax = mainData.getDouble("temp_max");
 
-                // Use location data to populate existing UI with better data
                 cityNameTextView.setText("Vị trí hiện tại");
                 tempTextView.setText(String.format(Locale.getDefault(), "%.0f°", temp));
                 conditionTextView.setText(description.substring(0, 1).toUpperCase() + description.substring(1));
                 tempRangeTextView.setText(String.format(Locale.getDefault(), "  %.0f° %.0f°", tempMax, tempMin));
-                aqiTextView.setText("AQI 102"); // Mock AQI data
+                fetchAQIData(coordData.getDouble("lat"), coordData.getDouble("lon"));
 
-                // Show weather data in existing UI
                 searchSection.setVisibility(View.GONE);
                 cityNameTextView.setVisibility(View.VISIBLE);
                 tempTextView.setVisibility(View.VISIBLE);
                 conditionLayout.setVisibility(View.VISIBLE);
                 aqiLayout.setVisibility(View.VISIBLE);
 
-                // Load weather icon
                 String iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@4x.png";
                 new DownloadImageTask().execute(iconUrl);
 
-                // Get location name using reverse geocoding
                 new ReverseGeocodeTask().execute(coordData.getDouble("lat"), coordData.getDouble("lon"));
 
-                // Fetch 5-day forecast
                 new FetchForecastTask().execute(coordData.getDouble("lat"), coordData.getDouble("lon"));
 
-                // Show forecast card
                 forecastCard.setVisibility(View.VISIBLE);
 
-                // Update background
                 updateBackground(iconCode);
 
-                // Store current coordinates for forecast activity
                 currentLat = coordData.getDouble("lat");
                 currentLon = coordData.getDouble("lon");
 
@@ -530,42 +501,34 @@ public class MainActivity extends AppCompatActivity {
             double lon = params[1];
 
             try {
-                // Try to get location name using Geocoder
                 Geocoder geocoder = new Geocoder(MainActivity.this, new Locale("vi", "VN"));
                 List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
                 if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
                     
-                    // Get all available location components
                     String subLocality = address.getSubLocality();  // Quận/Huyện
                     String locality = address.getLocality();        // Thành phố
                     String subAdminArea = address.getSubAdminArea(); // Tỉnh/Thành phố cấp cao hơn
                     String adminArea = address.getAdminArea();      // Vùng
                     String countryName = address.getCountryName();  // Quốc gia
                     
-                    // Build location name intelligently
                     String locationName = "";
                     
-                    // For cities: show district + city (e.g., "Cầu Giấy, Hà Nội")
                     if (subLocality != null && !subLocality.isEmpty()) {
                         locationName = subLocality;
                         if (locality != null && !locality.isEmpty() && !locality.equals(subLocality)) {
                             locationName += ", " + locality;
                         }
                     }
-                    // If no district, show city
                     else if (locality != null && !locality.isEmpty()) {
                         locationName = locality;
                     }
-                    // If no city, show province/state
                     else if (subAdminArea != null && !subAdminArea.isEmpty()) {
                         locationName = subAdminArea;
                     }
-                    // If no province, show admin area
                     else if (adminArea != null && !adminArea.isEmpty()) {
                         locationName = adminArea;
                     }
-                    // Last resort: country name
                     else if (countryName != null && !countryName.isEmpty()) {
                         locationName = countryName;
                     }
@@ -575,7 +538,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                // Fallback to default locale if Vietnamese doesn't work
                 geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
                 addresses = geocoder.getFromLocation(lat, lon, 1);
                 if (addresses != null && !addresses.isEmpty()) {
@@ -592,7 +554,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            // Fallback: Use OpenWeatherMap reverse geocoding
             try {
                 String url = "https://api.openweathermap.org/geo/1.0/reverse?lat=" + lat + "&lon=" + lon + "&limit=1&appid=" + API_KEY;
                 HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
@@ -630,7 +591,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String locationName) {
-            // Update city name in existing UI
             cityNameTextView.setText(locationName);
             currentCityName = locationName;
         }
@@ -656,7 +616,55 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void fetchAQIData(double lat, double lon) {
+        new Thread(() -> {
+            try {
+                String urlString = "https://api.openweathermap.org/data/2.5/air_pollution?" +
+                        "lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY;
 
+                URL url = new URL(urlString);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.connect();
+
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+
+                    JSONObject jsonResponse = new JSONObject(response.toString());
+                    JSONArray list = jsonResponse.getJSONArray("list");
+                    if (list.length() > 0) {
+                        JSONObject main = list.getJSONObject(0).getJSONObject("main");
+                        int aqi = main.getInt("aqi");
+
+                        // Update UI on the main thread
+                        runOnUiThread(() -> {
+                            String aqiText = getAqiText(aqi);
+                            aqiTextView.setText("AQI " + aqi + " - " + aqiText);
+                        });
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> aqiTextView.setText("AQI: N/A"));
+            }
+        }).start();
+    }
+
+    private String getAqiText(int aqi) {
+        if (aqi == 1) return "Tốt";
+        if (aqi == 2) return "Trung bình";
+        if (aqi == 3) return "Kém";
+        if (aqi == 4) return "Xấu";
+        if (aqi == 5) return "Rất xấu";
+        return "Không xác định";
+    }
     private void updateBackground(String iconCode) {
         int backgroundResource;
         switch (iconCode) {
@@ -778,7 +786,6 @@ public class MainActivity extends AppCompatActivity {
                 humidityTextView.setText(String.format(Locale.getDefault(), "%d%%", humidity));
                 pressureTextView.setText(String.format(Locale.getDefault(), "%d hPa", pressure));
 
-                // Hide search section and show weather data
                 searchSection.setVisibility(View.GONE);
                 cityNameTextView.setVisibility(View.VISIBLE);
                 tempTextView.setVisibility(View.VISIBLE);
@@ -786,7 +793,6 @@ public class MainActivity extends AppCompatActivity {
                 aqiLayout.setVisibility(View.VISIBLE);
                 forecastCard.setVisibility(View.VISIBLE);
 
-                // Fetch 5-day forecast
                 new FetchForecastTask().execute(currentLat, currentLon);
 
                 String iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@4x.png";
@@ -886,7 +892,6 @@ public class MainActivity extends AppCompatActivity {
                 forecastAdapter.notifyDataSetChanged();
 
             } catch (JSONException e) {
-                // Ignored
             }
         }
 
@@ -898,7 +903,6 @@ public class MainActivity extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("EEEE", new Locale("vi", "VN"));
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
             String day = sdf.format(date);
-            // Capitalize first letter
             if (day.equals("thứ hai")) return "Ngày mai";
             return day.substring(0, 1).toUpperCase() + day.substring(1);
         }

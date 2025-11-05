@@ -7,20 +7,10 @@
     tools:context=".AboutActivity">
 
     <TextView
-        android:id="@+id/titleTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Giới thiệu ứng dụng"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"/>
-
-    <TextView
         android:id="@+id/aboutTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titleTextView"
+
         android:layout_marginTop="40dp"
         android:gravity="center"
         android:lineSpacingExtra="4dp"

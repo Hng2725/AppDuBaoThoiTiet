@@ -34,14 +34,12 @@ public class WeatherDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Hide action bar
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
         
         setContentView(R.layout.activity_weather_detail);
 
-        // Initialize views
         rootLayout = findViewById(R.id.rootLayout);
         cityNameTextView = findViewById(R.id.cityNameTextView);
         uvIndexTextView = findViewById(R.id.uvIndexTextView);
@@ -54,14 +52,12 @@ public class WeatherDetailActivity extends AppCompatActivity {
         sunriseTextView = findViewById(R.id.sunriseTextView);
         sunsetTextView = findViewById(R.id.sunsetTextView);
 
-        // Get data from intent
         cityName = getIntent().getStringExtra("CITY_NAME");
         lat = getIntent().getDoubleExtra("LAT", 0);
         lon = getIntent().getDoubleExtra("LON", 0);
 
         cityNameTextView.setText(cityName != null ? cityName : "Chi tiết thời tiết");
 
-        // Fetch weather details
         new FetchWeatherDetailsTask().execute(lat, lon);
     }
 
@@ -158,12 +154,10 @@ public class WeatherDetailActivity extends AppCompatActivity {
                 visibilityTextView.setText(String.format(Locale.getDefault(), "%.1f km", visibility / 1000.0));
                 cloudinessTextView.setText(String.format(Locale.getDefault(), "%d%%", cloudiness));
                 
-                // Format sunrise and sunset times
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", Locale.getDefault());
                 sunriseTextView.setText(sdf.format(new java.util.Date(sunrise * 1000)));
                 sunsetTextView.setText(sdf.format(new java.util.Date(sunset * 1000)));
 
-                // Fetch UV index separately
                 new FetchUVIndexTask().execute(lat, lon);
 
             } catch (JSONException e) {
@@ -183,7 +177,6 @@ public class WeatherDetailActivity extends AppCompatActivity {
             String uvJsonStr = null;
 
             try {
-                // OpenWeatherMap UV Index API
                 final String BASE_URL = "https://api.openweathermap.org/data/2.5/uvi?";
                 String urlString = BASE_URL + "lat=" + latitude + "&lon=" + longitude + "&appid=" + API_KEY;
                 URL url = new URL(urlString);

@@ -65,11 +65,7 @@ public class ForecastActivity extends AppCompatActivity {
         forecastAdapter = new ForecastAdapter(forecastList);
         forecastRecyclerView.setAdapter(forecastAdapter);
 
-        if (API_KEY.equals("YOUR_API_KEY_HERE")) {
-            Toast.makeText(this, "Vui lòng thêm API Key của bạn vào file ForecastActivity.java", Toast.LENGTH_LONG).show();
-        } else {
             new FetchForecastTask().execute(lat, lon);
-        }
     }
 
     private class FetchForecastTask extends AsyncTask<Double, Void, String> {
@@ -135,7 +131,7 @@ public class ForecastActivity extends AppCompatActivity {
                 JSONObject forecastJson = new JSONObject(result);
                 JSONArray listArray = forecastJson.getJSONArray("list");
 
-                // --- Xử lý dữ liệu cho dự báo 5 ngày ---
+
                 Set<String> processedDays = new HashSet<>();
                 for (int i = 0; i < listArray.length(); i++) {
                     JSONObject forecastItem = listArray.getJSONObject(i);
@@ -156,10 +152,10 @@ public class ForecastActivity extends AppCompatActivity {
                 }
                 forecastAdapter.notifyDataSetChanged();
 
-                // --- Xử lý dữ liệu cho biểu đồ nhiệt độ hôm nay ---
+
                 List<BarEntry> chartEntries = new ArrayList<>();
                 List<String> chartLabels = new ArrayList<>();
-                int dataPoints = Math.min(8, listArray.length()); // 8*3h = 24h
+                int dataPoints = Math.min(8, listArray.length());
 
                 for (int i = 0; i < dataPoints; i++) {
                     JSONObject forecastItem = listArray.getJSONObject(i);
@@ -225,12 +221,12 @@ public class ForecastActivity extends AppCompatActivity {
         YAxis leftAxis = temperatureChart.getAxisLeft();
         leftAxis.setTextColor(Color.WHITE);
         leftAxis.setDrawGridLines(true);
-        leftAxis.setGridColor(Color.parseColor("#55FFFFFF")); // Lưới ngang màu trắng mờ
+        leftAxis.setGridColor(Color.parseColor("#55FFFFFF"));
         leftAxis.setAxisLineColor(Color.WHITE);
         leftAxis.setLabelCount(5, true);
         leftAxis.setAxisMinimum(0f);
 
-        temperatureChart.getAxisRight().setEnabled(false); // Ẩn trục Y bên phải
+        temperatureChart.getAxisRight().setEnabled(false);
 
         temperatureChart.animateY(1500);
 
