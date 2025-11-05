@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText cityEditText;
     private Button searchButton, viewMoreButton;
     private TextView cityNameTextView, tempTextView, conditionTextView, humidityTextView, pressureTextView;
-    private TextView tempRangeTextView, aqiTextView;
+    private TextView tempRangeTextView, aqiTextView, weatherSuggestionTextView;
     private ImageView weatherIconImageView;
     private LinearLayout detailsLayout, conditionLayout, aqiLayout, searchSection;
     private android.widget.RelativeLayout rootLayout;
@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentCityName;
     private double currentLat, currentLon;
     private double currentTempMin, currentTempMax;
+    private String currentIconCode;
 
 
     private LocationManager locationManager;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         conditionTextView = findViewById(R.id.conditionTextView);
         tempRangeTextView = findViewById(R.id.tempRangeTextView);
         aqiTextView = findViewById(R.id.aqiTextView);
+        weatherSuggestionTextView = findViewById(R.id.weatherSuggestionTextView);
         humidityTextView = findViewById(R.id.humidityTextView);
         pressureTextView = findViewById(R.id.pressureTextView);
         weatherIconImageView = findViewById(R.id.weatherIconImageView);
@@ -125,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("CITY_NAME", currentCityName);
             intent.putExtra("LAT", currentLat);
             intent.putExtra("LON", currentLon);
+            intent.putExtra("ICON_CODE", currentIconCode);
             startActivity(intent);
         });
 
@@ -459,6 +462,7 @@ public class MainActivity extends AppCompatActivity {
                 double temp = mainData.getDouble("temp");
                 String description = weatherData.getString("description");
                 String iconCode = weatherData.getString("icon");
+                currentIconCode = iconCode;
                 double tempMin = mainData.getDouble("temp_min");
                 double tempMax = mainData.getDouble("temp_max");
 
@@ -476,7 +480,6 @@ public class MainActivity extends AppCompatActivity {
 
                 String iconUrl = "https://openweathermap.org/img/wn/" + iconCode + "@4x.png";
                 new DownloadImageTask().execute(iconUrl);
-
                 new ReverseGeocodeTask().execute(coordData.getDouble("lat"), coordData.getDouble("lon"));
 
                 new FetchForecastTask().execute(coordData.getDouble("lat"), coordData.getDouble("lon"));
@@ -484,6 +487,8 @@ public class MainActivity extends AppCompatActivity {
                 forecastCard.setVisibility(View.VISIBLE);
 
                 updateBackground(iconCode);
+                updateWeatherSuggestion(iconCode);
+                weatherSuggestionTextView.setVisibility(View.VISIBLE);
 
                 currentLat = coordData.getDouble("lat");
                 currentLon = coordData.getDouble("lon");
@@ -777,6 +782,7 @@ public class MainActivity extends AppCompatActivity {
                 int humidity = mainData.getInt("humidity");
                 int pressure = mainData.getInt("pressure");
                 String iconCode = weatherData.getString("icon");
+                currentIconCode = iconCode;
 
                 cityNameTextView.setText(currentCityName);
                 tempTextView.setText(String.format(Locale.getDefault(), "%.0f°", temp));
@@ -799,6 +805,8 @@ public class MainActivity extends AppCompatActivity {
                 new DownloadImageTask().execute(iconUrl);
 
                 updateBackground(iconCode);
+                updateWeatherSuggestion(iconCode);
+                weatherSuggestionTextView.setVisibility(View.VISIBLE);
 
             } catch (JSONException e) {
                 Toast.makeText(MainActivity.this, "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show();
@@ -906,6 +914,33 @@ public class MainActivity extends AppCompatActivity {
             if (day.equals("thứ hai")) return "Ngày mai";
             return day.substring(0, 1).toUpperCase() + day.substring(1);
         }
+    }
+
+    private void updateWeatherSuggestion(String iconCode) {
+        String suggestion;
+        switch (iconCode) {
+            // Các mã icon cho trời mưa (rain)
+            case "09d":
+            case "09n":
+            case "10d":
+            case "10n":
+                suggestion = "Trời đang mưa, bạn nhớ mặc áo mưa khi ra ngoài nhé!";
+                break;
+            // Các mã icon cho trời có dông (thunderstorm)
+            case "11d":
+            case "11n":
+                suggestion = "Có dông bão, nên hạn chế ra ngoài nếu không cần thiết.";
+                break;
+            // Mã icon cho trời nắng (clear sky - day)
+            case "01d":
+                suggestion = "Trời nắng, bạn hãy chú ý khi ra ngoài (dùng kem chống nắng, mũ,...).";
+                break;
+            // Các trường hợp khác (mây, sương mù, ban đêm quang đãng...)
+            default:
+                suggestion = "Thời tiết hôm nay khá dễ chịu!, nên ra ngoài ";
+                break;
+        }
+        weatherSuggestionTextView.setText(suggestion);
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {

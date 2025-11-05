@@ -131,6 +131,17 @@
                 android:layout_marginStart="4dp"/>
         </LinearLayout>
 
+        <!-- Weather Suggestion -->
+        <TextView
+            android:id="@+id/weatherSuggestionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Trời nắng, bạn hãy chú ý khi ra ngoài"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"
+            android:visibility="gone"/>
 
         <!-- Spacer -->
         <View

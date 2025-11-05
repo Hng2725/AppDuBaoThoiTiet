@@ -3,6 +3,7 @@ package com.example.dubaothoitiet;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +43,7 @@ public class ForecastActivity extends AppCompatActivity {
     private ForecastAdapter forecastAdapter;
     private List<Forecast> forecastList;
     private BarChart temperatureChart;
+    private LinearLayout rootLayout;
 
     private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904";
 
@@ -53,13 +55,20 @@ public class ForecastActivity extends AppCompatActivity {
         forecastTitleTextView = findViewById(R.id.forecastTitleTextView);
         forecastRecyclerView = findViewById(R.id.forecastRecyclerView);
         temperatureChart = findViewById(R.id.temperatureChart);
+        rootLayout = findViewById(R.id.rootLayout);
         forecastRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         String cityName = getIntent().getStringExtra("CITY_NAME");
         double lat = getIntent().getDoubleExtra("LAT", 0);
         double lon = getIntent().getDoubleExtra("LON", 0);
+        String iconCode = getIntent().getStringExtra("ICON_CODE");
 
         forecastTitleTextView.setText("Dự báo 5 ngày cho " + cityName);
+        
+        // Set background based on current weather
+        if (iconCode != null) {
+            updateBackground(iconCode);
+        }
 
         forecastList = new ArrayList<>();
         forecastAdapter = new ForecastAdapter(forecastList);
@@ -152,7 +161,6 @@ public class ForecastActivity extends AppCompatActivity {
                 }
                 forecastAdapter.notifyDataSetChanged();
 
-
                 List<BarEntry> chartEntries = new ArrayList<>();
                 List<String> chartLabels = new ArrayList<>();
                 int dataPoints = Math.min(8, listArray.length());
@@ -231,5 +239,41 @@ public class ForecastActivity extends AppCompatActivity {
         temperatureChart.animateY(1500);
 
         temperatureChart.invalidate();
+    }
+
+    private void updateBackground(String iconCode) {
+        int backgroundResource;
+        switch (iconCode) {
+            case "01d":
+                backgroundResource = R.drawable.bg_sunny;
+                break;
+            case "01n":
+                backgroundResource = R.drawable.bg_night;
+                break;
+            case "02d":
+            case "03d":
+            case "04d":
+                backgroundResource = R.drawable.bg_cloudy;
+                break;
+            case "02n":
+            case "03n":
+            case "04n":
+                backgroundResource = R.drawable.bg_night;
+                break;
+            case "09d":
+            case "10d":
+            case "11d":
+                backgroundResource = R.drawable.bg_rainy;
+                break;
+            case "09n":
+            case "10n":
+            case "11n":
+                backgroundResource = R.drawable.bg_rainy;
+                break;
+            default:
+                backgroundResource = R.drawable.bg_cloudy;
+                break;
+        }
+        rootLayout.setBackgroundResource(backgroundResource);
     }
 }
