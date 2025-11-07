@@ -3,21 +3,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="24dp"
+    android:background="@drawable/bg_cloudy"
     tools:context=".AboutActivity">
 
-    <TextView
-        android:id="@+id/aboutTextView"
+    <LinearLayout
+        android:id="@+id/aboutContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="@drawable/bg_cloudy"
+        android:elevation="4dp">
 
-        android:layout_marginTop="40dp"
-        android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:text="Đây là một ứng dụng dự báo thời tiết đơn giản, được xây dựng để cung cấp thông tin thời tiết nhanh chóng và chính xác. Chức năng chính:
-Xem thời tiết hiện tại của bất kỳ thành phố nào, dự báo thời tiết cho 5 ngày tới.
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="ỨNG DỤNG DỰ BÁO THỜI TIẾT"
+            android:textColor="#1E3A8A"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="12dp" />
 
-Phiên bản: 1.0"
-        android:textSize="25sp" />
+        <View
+            android:layout_width="80dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:background="#1E3A8A"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/aboutTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lineSpacingExtra="6dp"
+            android:text="Đây là một ứng dụng dự báo thời tiết đơn giản, được xây dựng để cung cấp thông tin thời tiết nhanh chóng và chính xác.\n\n✨ Chức năng chính:\n- Xem thời tiết hiện tại của bất kỳ thành phố nào.\n- Dự báo thời tiết cho 5 ngày tới.\n\n📱 Phiên bản: 1.0"
+            android:textColor="#374151"
+            android:textSize="16sp" />
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Cầu Giấy"
-            android:textSize="24sp"
+            android:textSize="40sp"
             android:textColor="#FFFFFF"
             android:layout_marginTop="8dp"
             android:visibility="gone"/>
@@ -119,7 +119,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:src="@android:drawable/ic_dialog_info"
-                android:tint="#FFFFFF"/>
+                app:tint="#FFFFFF"/>
 
             <TextView
                 android:id="@+id/aqiTextView"
@@ -177,7 +177,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@android:drawable/ic_menu_today"
-                        android:tint="#FFFFFF"/>
+                        app:tint="#FFFFFF"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -235,7 +235,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@android:drawable/ic_menu_info_details"
-            android:tint="#FFFFFF"
+            app:tint="#FFFFFF"
             android:layout_marginEnd="12dp"/>
 
         <ImageView
@@ -243,7 +243,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@android:drawable/ic_input_add"
-            android:tint="#FFFFFF"
+            app:tint="#FFFFFF"
             android:layout_marginEnd="12dp"/>
 
         <ImageView
@@ -251,7 +251,7 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@android:drawable/ic_menu_more"
-            android:tint="#FFFFFF"/>
+            app:tint="#FFFFFF"/>
     </LinearLayout>
 
     <!-- Hidden elements for compatibility -->

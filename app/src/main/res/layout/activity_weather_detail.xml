@@ -48,8 +48,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="20dp"
-            app:cardBackgroundColor="#B3FFFFFF"
-            app:cardElevation="8dp"
+            app:cardBackgroundColor="#CCF5F8FF"
+            app:cardElevation="6dp"
+            app:cardUseCompatPadding="true"
+
             android:layout_marginBottom="16dp">
 
             <LinearLayout
@@ -229,8 +231,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="20dp"
-            app:cardBackgroundColor="#B3FFFFFF"
-            app:cardElevation="8dp"
+            app:cardUseCompatPadding="true"
+            app:cardBackgroundColor="#CCF5F8FF"
+            app:cardElevation="6dp"
+
             android:layout_marginBottom="16dp">
 
             <LinearLayout
@@ -371,8 +375,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="20dp"
-            app:cardBackgroundColor="#B3FFFFFF"
-            app:cardElevation="8dp">
+            app:cardBackgroundColor="#CCF5F8FF"
+            app:cardUseCompatPadding="true"
+
+            app:cardElevation="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"

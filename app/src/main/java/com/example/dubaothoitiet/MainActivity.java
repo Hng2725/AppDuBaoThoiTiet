@@ -674,33 +674,33 @@ public class MainActivity extends AppCompatActivity {
         int backgroundResource;
         switch (iconCode) {
             case "01d":
-                backgroundResource = R.drawable.bg_sunny;
+                backgroundResource = R.drawable.anhtroisang;
                 break;
             case "01n":
-                backgroundResource = R.drawable.bg_night;
+                backgroundResource = R.drawable.troitoi;
                 break;
             case "02d":
             case "03d":
             case "04d":
-                backgroundResource = R.drawable.bg_cloudy;
+                backgroundResource = R.drawable.troiamu;
                 break;
             case "02n":
             case "03n":
             case "04n":
-                backgroundResource = R.drawable.bg_night;
+                backgroundResource = R.drawable.troitoi;
                 break;
             case "09d":
             case "10d":
             case "11d":
-                backgroundResource = R.drawable.bg_rainy;
+                backgroundResource = R.drawable.troimua;
                 break;
             case "09n":
             case "10n":
             case "11n":
-                backgroundResource = R.drawable.bg_rainy;
+                backgroundResource = R.drawable.troimua;
                 break;
             default:
-                backgroundResource = R.drawable.bg_cloudy;
+                backgroundResource = R.drawable.troiamu;
                 break;
         }
         rootLayout.setBackgroundResource(backgroundResource);
