@@ -1,9 +1,16 @@
-package com.example.dubaothoitiet;
+package com.example.dubaothoitiet.activities;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.dubaothoitiet.R;
+import com.example.dubaothoitiet.adapters.ForecastAdapter;
+import com.example.dubaothoitiet.models.Forecast;
+import com.example.dubaothoitiet.notification.NotificationHelper;
+import com.example.dubaothoitiet.notification.WeatherNotificationReceiver;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -71,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1002;
     private boolean isLocationPermissionGranted = false;
 
     private final String API_KEY = "b0ecf12a1f927381cd92f75e03a07904";
@@ -160,6 +168,10 @@ public class MainActivity extends AppCompatActivity {
         if (isLocationPermissionGranted) {
             refreshByCurrentLocation();
         }
+
+        NotificationHelper.createNotificationChannel(this);
+        checkNotificationPermission();
+        WeatherNotificationReceiver.scheduleDailyNotification(this);
     }
 
     @Override
@@ -192,6 +204,22 @@ public class MainActivity extends AppCompatActivity {
                 isLocationPermissionGranted = false;
                 searchSection.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Cần quyền truy cập vị trí để hiển thị thời tiết hiện tại", Toast.LENGTH_LONG).show();
+            }
+        } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, schedule notification
+                WeatherNotificationReceiver.scheduleDailyNotification(this);
+            }
+        }
+    }
+
+    private void checkNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_REQUEST_CODE);
             }
         }
     }
@@ -485,13 +513,17 @@ public class MainActivity extends AppCompatActivity {
                 new FetchForecastTask().execute(coordData.getDouble("lat"), coordData.getDouble("lon"));
 
                 forecastCard.setVisibility(View.VISIBLE);
-
                 updateBackground(iconCode);
                 updateWeatherSuggestion(iconCode);
                 weatherSuggestionTextView.setVisibility(View.VISIBLE);
 
                 currentLat = coordData.getDouble("lat");
                 currentLon = coordData.getDouble("lon");
+
+                // Save location data for notifications (will be updated with proper city name by ReverseGeocodeTask)
+                if (currentCityName != null) {
+                    WeatherNotificationReceiver.saveLocationData(MainActivity.this, currentCityName, currentLat, currentLon);
+                }
 
             } catch (JSONException e) {
                 Toast.makeText(MainActivity.this, "Lỗi phân tích dữ liệu thời tiết", Toast.LENGTH_SHORT).show();
@@ -598,6 +630,11 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String locationName) {
             cityNameTextView.setText(locationName);
             currentCityName = locationName;
+            
+            // Update saved location data with proper city name
+            if (currentLat != 0 && currentLon != 0) {
+                WeatherNotificationReceiver.saveLocationData(MainActivity.this, currentCityName, currentLat, currentLon);
+            }
         }
     }
 
@@ -807,6 +844,9 @@ public class MainActivity extends AppCompatActivity {
                 updateBackground(iconCode);
                 updateWeatherSuggestion(iconCode);
                 weatherSuggestionTextView.setVisibility(View.VISIBLE);
+
+                // Save location data for notifications
+                WeatherNotificationReceiver.saveLocationData(MainActivity.this, currentCityName, currentLat, currentLon);
 
             } catch (JSONException e) {
                 Toast.makeText(MainActivity.this, "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show();

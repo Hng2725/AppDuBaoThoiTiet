@@ -1,4 +1,4 @@
-package com.example.dubaothoitiet;
+package com.example.dubaothoitiet.models;
 
 public class HourlyForecast {
     private String time;

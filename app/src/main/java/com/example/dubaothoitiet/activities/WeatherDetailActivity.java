@@ -1,4 +1,4 @@
-package com.example.dubaothoitiet;
+package com.example.dubaothoitiet.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.dubaothoitiet.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;

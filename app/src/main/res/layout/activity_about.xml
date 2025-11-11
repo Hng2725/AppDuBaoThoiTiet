@@ -24,7 +24,7 @@
             android:layout_gravity="center"
             android:text="ỨNG DỤNG DỰ BÁO THỜI TIẾT"
             android:textColor="#1E3A8A"
-            android:textSize="22sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:letterSpacing="0.05"
             android:layout_marginBottom="12dp" />
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:lineSpacingExtra="6dp"
-            android:text="Đây là một ứng dụng dự báo thời tiết đơn giản, được xây dựng để cung cấp thông tin thời tiết nhanh chóng và chính xác.\n\n✨ Chức năng chính:\n- Xem thời tiết hiện tại của bất kỳ thành phố nào.\n- Dự báo thời tiết cho 5 ngày tới.\n\n📱 Phiên bản: 1.0"
+            android:text="Đây là một ứng dụng dự báo thời tiết đơn giản, được xây dựng để cung cấp thông tin thời tiết nhanh chóng và chính xác.\n\n Chức năng chính:\n- Xem thời tiết hiện tại của bất kỳ thành phố nào.\n- Dự báo thời tiết cho 5 ngày tới.\n\n📱 Phiên bản: 1.0"
             android:textColor="#374151"
             android:textSize="16sp" />
 

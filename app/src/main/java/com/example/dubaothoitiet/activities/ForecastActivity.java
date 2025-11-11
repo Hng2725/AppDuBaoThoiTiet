@@ -1,4 +1,4 @@
-package com.example.dubaothoitiet;
+package com.example.dubaothoitiet.activities;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -9,6 +9,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.dubaothoitiet.R;
+import com.example.dubaothoitiet.adapters.ForecastAdapter;
+import com.example.dubaothoitiet.models.Forecast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;

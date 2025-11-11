@@ -1,4 +1,4 @@
-package com.example.dubaothoitiet;
+package com.example.dubaothoitiet.models;
 
 public class Forecast {
     private String day;
